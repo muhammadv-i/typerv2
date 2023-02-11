@@ -96,14 +96,20 @@ function typerFactory(selector, speed) {
     return { start };
 }
 
-typerFactory('.typer', 20).start();
+addEventListener("scroll", (e) => {
+    if (document.querySelector('.cp-inview').style.display == 'block') {
+        typerFactory('.typer', 20).start();
+    }
+});
 
 
 const tabs = document.querySelectorAll('.tab');
 tabs.forEach( tab => tab.addEventListener('click', e => { 
-    if (e.target == tab || e.target.parentElement == tab) {
-        tab.dataset.selected = 'true';
-    }
+    tab.dataset.selected = 'true';
+    document.querySelectorAll(`.code div[data-tab]`).forEach( tabWindow => tabWindow.dataset.selected = 'false');
+    document.querySelector(`.code div[data-tab="${tab.dataset.tab}"]`).dataset.selected = 'true';
+    calcLineNumbers();
+        
     tabs.forEach( othertab => {
         if (othertab != tab) {
             othertab.dataset.selected = 'false';
@@ -111,9 +117,13 @@ tabs.forEach( tab => tab.addEventListener('click', e => {
     })
 }));
 
+
 let lineNumebers = document.querySelector('.line_numbers');
-for (let i = 1; i < document.querySelector('.code').childElementCount; i++) {
-    let pre = document.createElement('pre');
-    pre.innerHTML = i;
-    lineNumebers.appendChild(pre);
+function calcLineNumbers() {
+    lineNumebers.innerHTML = '';
+    for (let i = 1; i <= document.querySelector('.code div[data-selected="true"').childElementCount; i++) {
+        let pre = document.createElement('pre');
+        pre.innerHTML = i;
+        lineNumebers.appendChild(pre);
+    }
 }
