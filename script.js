@@ -106,7 +106,7 @@ addEventListener("scroll", (e) => {
 const tabs = document.querySelectorAll('.tab');
 tabs.forEach( tab => tab.addEventListener('click', e => { 
     tab.dataset.selected = 'true';
-    document.querySelectorAll(`.code > div`).forEach( tabWindow => tabWindow.dataset.selected = 'false');
+    document.querySelectorAll(`.code div[data-tab]`).forEach( tabWindow => tabWindow.dataset.selected = 'false');
     document.querySelector(`.code div[data-tab="${tab.dataset.tab}"]`).dataset.selected = 'true';
     calcLineNumbers();
         
