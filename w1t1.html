@@ -1,0 +1,19 @@
+                <div data-tab='1' data-selected="true">
+                    <pre><span class="white">#!/usr/bin/env ts-node</span></pre>
+                    <pre> </pre>
+                    <pre><span class="red">import</span> <span class="white">{ fetch }</span> <span class="red">from</span> <span class="blue">"fetch-h2";</span></pre>
+                    <pre> </pre>
+                    <pre class="typer"><span class="dgray">// Determine whether the sentiment of text is positive</span></pre>
+                    <pre class="typer"><span class="dgray">// Use a web service</span></pre>
+                    <pre class="typer"><span class="red">async function</span> <span class="purple">isPositive</span><span class="white">(text:</span> <span class="gray">string</span><span class="white">):</span> <span class="gray">Promise</span><span class="white">&lt;</span><span class="gray">boolean</span><span class="white">&gt; {</span></pre>
+                    <pre>  <span class="red">const</span> <span class="white">response</span> <span class="dblue">=</span> <span class="red">await</span> <span class="purple">fetch</span><span class="white">(</span><span class="blue">`http://text-processing.com/api/sentiment/`</span><span class="white">, {</span></pre>
+                    <pre>    <span class="dblue">method</span><span class="white">:</span> <span class="blue">"POST"</span><span class="white">,</span></pre>
+                    <pre>    <span class="dblue">body</span><span class="white">:</span> <span class="blue">`text=</span><span class="gray">${text}</span><span class="blue">`</span><span class="white">,</span></pre>
+                    <pre>    <span class="dblue">headers</span><span class="white">:</span> <span class="white">{</span></pre>
+                    <pre>      <span class="blue">"Content-Type"</span><span class="white">:</span> <span class="blue">"application/x-www-form-urlencoded"</span><span class="white">,</span></pre>
+                    <pre>   <span class="white">},</span></pre>
+                    <pre>  <span class="white">});</span></pre>
+                    <pre>  <span class="red">const</span> <span class="white">json</span> <span class="dblue">=</span> <span class="red">await</span> <span class="white">response.</span><span class="purple">json</span><span class="white">();</span></pre>
+                    <pre>  <span class="red">return</span> <span class="white">json.</span><span class="dblue">label ===</span> <span class="blue">"pos"</span><span class="white">;</span></pre>
+                    <pre><span class="white">}</span></pre>
+                </div>
