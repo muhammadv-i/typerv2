@@ -1,21 +1,30 @@
-function typerFactory(selector, speed) {
-    let _lines = document.querySelectorAll(selector);
+function typerFactory(selector, speed, parent = document) {
+    let _lines = parent.querySelectorAll(selector);
     let _linesCopy = Array.from(_lines).map( line => line.innerHTML );
-    _lines.forEach( line => line.innerHTML = ' ');
-    // for (let i = 0; i < _lines.length; i++) {
-    //     let pre = document.createElement('pre');
-    //     pre.classList.add('typer');
-    //     pre.innerHTML = _lines[i].innerHTML;
-    //     _lines[i].innerHTML = '';
-    //     _linesCopy.push(pre);
-    // }
-
+    
     let _char = 0;
     let _line = 0;
     let _interval;
-
+    let _spanTimeout;
+    // let _running = false;
+    // const isRunning = () => _running;
+    
     function start() {
+        initiate();
+        // _running = true;
         _interval = setInterval(_type, speed);
+    }
+    
+    function initiate() {
+        // _running = false;
+        clearInterval(_interval);
+        clearTimeout(_spanTimeout);
+        _lines.forEach( line => {
+            line.dataset.cursor = 'hidden';
+            line.innerHTML = ' '
+        });
+        _char = 0;
+        _line = 0;
     }
     
     function _type() {
@@ -23,8 +32,9 @@ function typerFactory(selector, speed) {
         if ( _char >= _linesCopy[_line].length ) {
             _lines[_line].dataset.cursor = 'hidden';
             
-            if ( _line >= _linesCopy.length - 1) 
-            clearInterval(_interval);
+            if ( _line >= _linesCopy.length - 1) {
+                clearInterval(_interval);
+            }
             else {
                 _char = 0;
                 _line++;
@@ -69,9 +79,11 @@ function typerFactory(selector, speed) {
                     _lines[_line].lastChild.textContent += spanText.charAt(i);
                     i++;
                 }
+
                 if (i < spanText.length) {
-                    setTimeout(type, speed);
+                    _spanTimeout = setTimeout(type, speed);
                 }
+                
                 _interval = setInterval(_type, speed); 
             })()   
             
@@ -93,37 +105,78 @@ function typerFactory(selector, speed) {
         }
     }
 
-    return { start };
+    return { start, initiate, /* isRunning */ };
 }
 
-addEventListener("scroll", (e) => {
-    if (document.querySelector('.cp-inview').style.display == 'block') {
-        typerFactory('.typer', 20).start();
+
+function textWindow(windowNumber) {
+    let _window = document.querySelectorAll('.window')[windowNumber];
+    console.log(_window);
+    const _tabs = _window.querySelectorAll('.tab');
+    let _lineNumbers = _window.querySelector('.line_numbers');
+    let _currentTab = 1;
+    let _isLeaving = false;
+
+    let _typers = [];
+    for (tab of _tabs) {
+        _typers.push(typerFactory('.typer', 20, _window.querySelector(`.code div[data-tab="${tab.dataset.tab}"]`)));
     }
-});
-
-
-const tabs = document.querySelectorAll('.tab');
-tabs.forEach( tab => tab.addEventListener('click', e => { 
-    tab.dataset.selected = 'true';
-    document.querySelectorAll(`.code div[data-tab]`).forEach( tabWindow => tabWindow.dataset.selected = 'false');
-    document.querySelector(`.code div[data-tab="${tab.dataset.tab}"]`).dataset.selected = 'true';
-    calcLineNumbers();
-        
-    tabs.forEach( othertab => {
-        if (othertab != tab) {
-            othertab.dataset.selected = 'false';
+    
+    let _observerOptions = {
+        threshold: [0.5]
+    };
+    let _observer = new IntersectionObserver( (entries) => {  
+        let typer = _typers[_currentTab - 1];
+        if (entries[0].isIntersecting) {
+            console.log('observed');    
+            _isLeaving = true;
+            typer.start();
         }
-    })
-}));
-
-
-let lineNumebers = document.querySelector('.line_numbers');
-function calcLineNumbers() {
-    lineNumebers.innerHTML = '';
-    for (let i = 1; i <= document.querySelector('.code div[data-selected="true"').childElementCount; i++) {
-        let pre = document.createElement('pre');
-        pre.innerHTML = i;
-        lineNumebers.appendChild(pre);
+        else {
+            _isLeaving = false;
+            typer.initiate();
+        }
+    }, _observerOptions);
+        
+    function _calcLineNumbers() {
+        _lineNumbers.innerHTML = '';
+        for (let i = 1; i <= _window.querySelector('.code div[data-selected="true"').childElementCount; i++) {
+            let pre = document.createElement('pre');
+            pre.innerHTML = i;
+            _lineNumbers.appendChild(pre);
+        }
     }
+    
+    function init() {
+        _calcLineNumbers();
+        
+        _observer.observe(_window);
+
+        _tabs.forEach( tab => tab.addEventListener('click', e => {
+            tab.dataset.selected = 'true';
+            _window.querySelectorAll(`.code div[data-tab]`).forEach( tabWindow => tabWindow.dataset.selected = 'false');
+            _window.querySelector(`.code div[data-tab="${tab.dataset.tab}"]`).dataset.selected = 'true';
+
+            if (_currentTab != tab.dataset.tab) {
+                _currentTab = tab.dataset.tab;
+                if (_isLeaving) {
+                    _typers[_currentTab - 1].start();
+                }
+            }
+
+            _calcLineNumbers();
+                
+            _tabs.forEach( othertab => {
+                if (othertab != tab) {
+                    othertab.dataset.selected = 'false';
+                    _typers[othertab.dataset.tab - 1].initiate();
+                }
+            })
+        }));    
+    }
+
+    return { init };
 }
+
+let window1 = textWindow(0);
+window1.init();
