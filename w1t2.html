@@ -1,0 +1,30 @@
+<pre><span class="red">package</span> main</pre>
+                    <pre> </pre>
+                    <pre><span class="red">type</span> <span class="gray">CategorySummary</span> <span class="red">struct</span> {</pre>
+                    <pre>    <span class="dblue">Title</span>       <span class="gray">string</span></pre>
+                    <pre>    <span class="dblue">Tasks</span>       <span class="gray">int</span></pre>
+                    <pre>    <span class="dblue">AvgValue</span>    <span class="gray">float64</span></pre>
+                    <pre>}</pre>
+                    <pre> </pre>
+                    <pre><span class="red">func</span> <span class="purple">createTables</span>(<span class="white">db</span> <span class="dblue">*</span>sql.<span class="gray">DB</span>) {</pre>
+                    <pre>    <span class="white">db</span>.<span class="purple">Exec</span>(<span class="blue">"CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, value INTEGER, category TEXT)"</span>)</pre>
+                    <pre>}</pre>
+                    <pre> </pre>
+                    <pre class="typer"><span class="red">func</span> <span class="purple">createCategorySummaries</span><span class="white">(</span><span class="white">db</span> <span class="dblue">*</span>sql.<span class="gray">DB</span>) ([]<span class="gray">CategorySummary</span>, <span class="gray">error</span>) {</pre>
+                    <pre>    <span class="red">var</span> <span class="white">summaries</span> []<span class="gray">CategorySummary</span></pre>
+                    <pre>    <span class="white">rows</span>, <span class="white">err</span> <span class="dblue">:=</span> <span class="white">db</span>.<span class="purple">Query</span>(<span class="blue">"SELECT category, COUNT(category), AVG(value) FROM tasks GROUP BY category"</span>)</pre>
+                    <pre>    <span class="red">if</span> <span class="white">err</span> <span class="dblue">!=</span> <span class="dblue">nil</span> {</pre>
+                    <pre>        <span class="red">return</span> <span class="dblue">nil</span>, <span class="white">err</span></pre>
+                    <pre>    }</pre>
+                    <pre>    <span class="red">defer</span> <span class="white">rows</span>.<span class="purple">Close</span>()</pre>
+                    <pre> </pre>
+                    <pre>    <span class="red">for</span> <span class="white">rows</span>.<span class="purple">Next</span>() {</pre>
+                    <pre>        <span class="red">var</span> <span class="white">summary</span> <span class="gray">CategorySummary</span></pre>
+                    <pre>        <span class="white">err</span> <span class="dblue">:=</span> <span class="white">rows</span>.<span class="purple">Scan</span>(<span class="dblue">&amp;</span><span class="white">summary</span>.<span class="dblue">Title</span>, <span class="dblue">&amp;</span><span class="white">summary</span>.<span class="dblue">Tasks</span>, <span class="dblue">&amp;</span><span class="white">summary</span>.<span class="dblue">AvgValue</span>)</pre>
+                    <pre>        <span class="red">if</span> <span class="white">err</span> <span class="dblue">!=</span> <span class="dblue">nil</span> {</pre>
+                    <pre>            <span class="red">return</span> <span class="dblue">nil</span>, <span class="white">err</span></pre>
+                    <pre>        }</pre>
+                    <pre>        <span class="white">summaries</span> <span class="dblue">=</span> <span class="purple">append</span>(<span class="white">summaries</span>, <span class="white">summary</span>)</pre>
+                    <pre>    }</pre>
+                    <pre>    <span class="red">return</span> <span class="white">summaries</span>, <span class="dblue">nil</span></pre>
+                    <pre>}</pre>
