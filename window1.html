@@ -321,22 +321,4 @@ function textWindow(windowNumber) {
     return { init };
 }
 
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
-
-httpGetAsync("https://cdn.jsdelivr.net/gh/muhammadv-i/typerv2@main/index.html", (html) => {
-//			let window1 = textWindow(0);
-//			window1.init();
-      console.log(document.getElementsByClassName('cp-add-window'));
-      document.getElementsByClassName('cp-add-window')[windowNumber].innerHTML += html;
-})
-
 </script>
